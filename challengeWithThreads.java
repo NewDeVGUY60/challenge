@@ -127,14 +127,16 @@ public class challengeWithThreads {
         return null;
     }
 
-    public static Void testPassword(String password, String id){
+    public static Void testPassword(String password, String id) {
 
-        System.out.println("\""+password+"\"");
+        System.out.println("\"" + password + "\"");
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://shallenge.onrender.com/challenges/"+id+"/answer"))
-                .POST(HttpRequest.BodyPublishers.ofString("\""+password+"\""))
+                .uri(URI.create("https://shallenge.onrender.com/challenges/" + id + "/answer"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString("\"" + password + "\""))
                 .build();
 
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())

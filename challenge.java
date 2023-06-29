@@ -84,6 +84,8 @@ public class challenge {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://shallenge.onrender.com/challenges/"+id+"/answer"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString("\""+password+"\""))
                 .build();
 
