@@ -3,7 +3,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HexFormat;
@@ -78,9 +77,24 @@ public class challenge {
         System.out.println("password not fund");
     }
 
-    public static Boolean testPassword(String password, String id) {
+    public static Void testPassword(String password, String id){
 
-        return false;
+        System.out.println("\""+password+"\"");
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://shallenge.onrender.com/challenges/"+id+"/answer"))
+                .POST(HttpRequest.BodyPublishers.ofString("\""+password+"\""))
+                .build();
+
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(res -> {
+
+                    System.out.println(res);
+                })
+                .join();
+
     }
 
     public static String hashPassword(String passwordToTest, byte[] salt) {
