@@ -6,6 +6,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.HexFormat;
 
 public class challenge {
 
@@ -42,14 +43,14 @@ public class challenge {
     };
 
     public static void searchPassword(HashMap<String, String> resp) {
-        String myHash = resp.get("hash");
+        String passwordHash = resp.get("hash");
         String mySalt = resp.get("salt");
 
-        byte[] mySaltToByte = mySalt.getBytes();
+        byte[] mySaltToByte = HexFormat.of().parseHex(mySalt);
 
-        String password = "" ;
-        String hashedPassword = hashPassword(password, mySaltToByte);
-        
+        String password = "";
+        String hashedPassword = "";
+
         for (int a = 0; a < 26; a++) {
             System.out.println(password);
             System.out.println(hashedPassword);
@@ -62,9 +63,9 @@ public class challenge {
                                         (char) ('a' + d) + (char) ('a' + e) + (char) ('a' + f);
                                 hashedPassword = hashPassword(password, mySaltToByte);
 
-                                if (hashedPassword.equals(myHash)) {
+                                if (hashedPassword.equals(passwordHash)) {
                                     System.out.println(password);
-                                    challenge.testPassword(password, getResponse().get("id")); // Mot de passe trouvé
+                                    testPassword(password, getResponse().get("id")); // Mot de passe trouvé
                                 }
                             }
                         }
@@ -84,24 +85,24 @@ public class challenge {
 
     public static String hashPassword(String passwordToTest, byte[] salt) {
 
-        MessageDigest md;
 
         try {
-            md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(salt);
-            byte[] digest = md.digest(passwordToTest.getBytes(StandardCharsets.UTF_8));
-          
+            byte[] passwordBytes = passwordToTest.getBytes();
+            byte[] digest = md.digest(passwordBytes);
 
-                StringBuilder hexString = new StringBuilder();
-                for (int i = 0; i < digest.length; i++) {
-                    String hex = String.format("%02x", digest[i]);
-                    hexString.append(hex);
-                }
-
-                return hexString.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                String hex = String.format("%02x", b);
+                hexString.append(hex);
             }
+
+            return hexString.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
 
         return null;
     }
@@ -118,6 +119,5 @@ public class challenge {
     public static void setResponse(HashMap<String, String> response) {
         challenge.response = response;
     }
-
 
 }
